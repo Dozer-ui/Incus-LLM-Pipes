@@ -1,0 +1,55 @@
++------------------------------------------------------------------------------+
+|                          Launch and Configure Nodes                          |
++------------------------------------------------------------------------------+
+# Creates two independent lightweight system containers. Both already contain dependencies (curl, jq, stdbuf, ollama) and /urs/local/bin/llm-node stream wrapper script.
+
+incus launch llm-node-base node-formatter
+incus launch llm-node-base node-executor
+
+# On host create two text files, formatter_prompt.txt and executor_prompt.txt
+
++------------------------------------------------------------------------------+
+|                            formatter_prompt.txt                              |
++------------------------------------------------------------------------------+
+You are an expert prompt engineer and technical optimizer. 
+Take the incoming user input and rewrite it to be clear, highly structured, and optimized for technical analysis.
+Focus on specifying explicit output constraints, requesting step-by-step reasoning, and asking for code or architecture diagrams where relevant.
+Output ONLY the revised prompt text. Do not include conversational greetings, explanations, or markdown code block wrappers.
++------------------------------------------------------------------------------+
+
++------------------------------------------------------------------------------+
+|                            executor_prompt.txt                               |
++------------------------------------------------------------------------------+
+You are a senior technical analyst and systems engineer.
+Execute the user request with high technical precision. 
+Provide concise, well-structured, and accurate responses.
++------------------------------------------------------------------------------+
+
+# Decoupling instructions into plain text files keeps container runtime code completely generic. The role of the container is defined entirely by the file pushed to /etc/llm/system_prompt.txt.
+
+# Push files to target container locations.
+
+incus file push formatter_prompt.txt node-formatter/etc/llm/system_prompt.txt
+incus file push executor_prompt.txt node-executor/etc/llm/system_prompt.txt
+
+# Verify
+
+incus exec node-formatter -- cat /etc/llm/system_prompt.txt
+incus exec node-executor -- cat /etc/llm/system_prompt.txt
+
+# Assigns node-formatter the task of prompt optimization and node-executor the task of final analysis.
+
+
+
+# Pre-download model weights inside containers. Pre-loading weights guarantees that the first time you execute a live incus exec stream pipe, the execution starts instantly without hanging to download gigabytes of model data over the network.
+
+incus exec node-formatter -- ollama pull qwen2.5:3b
+incus exec node-executor -- ollama pull qwen2.5:7b
+
+# Other possible node-executor models. Max total vram on Nvidia RTX3060 12GB.
+# qwen2.5:14b deepseek-coder-v2:16b (Lite) mistral:7b-instruct hermes3:8b
+
+# Checklist:
+[x] Two running, isolated Incus instances (node-formatter and node-executor).
+[x] Custom system prompt injection on each node without modifying code.
+[x] Cached local model weights ready for instant execution.

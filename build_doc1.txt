@@ -11,7 +11,7 @@ incus shell llm-base
 --------------------------------------------------------------------------------
 # Update package index and install tools.
 # Necessary tools: curl, jq, stdbuf, cat
-apt update && apt install -y curl jq coreutils
+apt-get update && apt-get install -y curl jq coreutils zstd
 
 --------------------------------------------------------------------------------
 # Install the Ollama inference engine.
@@ -70,7 +70,6 @@ stdbuf -oL -o0 ollama run qwen2.5:3b "$SYSTEM_PROMPT
 ---
 User Input:
 $USER_INPUT"
-EOF
 +------------------------------------------------------------------------------+
 
 --------------------------------------------------------------------------------
@@ -93,7 +92,8 @@ incus stop llm-base
 --------------------------------------------------------------------------------
 # Publish container as local image template.
 # Converts configured container into Incus image alias. You can now use this 
-# image to spin up preconfigured llm-nodes for llm prompt chaining infrastructure.
+# image to spin up preconfigured llm-nodes for llm prompt chaining
+# infrastructure.
 incus publish llm-base --alias llm-node-base description="Debian 12 base image with Ollama and llm-node wrapper"
 
 --------------------------------------------------------------------------------

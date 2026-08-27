@@ -1,0 +1,27 @@
+Phase 1: Environment & Base Container Setup
+
+1. Provision Base Incus Container:
+2. Install Inference & Utilities:
+3. Deploy the Uniform Node Script (/usr/local/bin/llm-node):
+Create a small shell wrapper inside the container that reads stdin, appends the
+system prompt located at /etc/llm/system_prompt.txt, invokes the model, and
+streams to stdout.
+4. Publish as a Local Image Template
+
+Phase 2: Instantiating Node Containers
+
+1. Launch Pipeline Nodes
+2. Configure Node 1
+3. Configure Node 2
+4. Pull/Load Target Models
+
+Phase 3: Pipeline Wiring & Proof of Concept Execution
+
+1. Test Single Node Streams
+2. Wire the Pipeline Chain
+3. Verify Intermediate Transformations
+
+Phase 4: Host Orchestration & Documentation
+
+1. Write chain.sh Orchestrator Script
+2. Document Commands & Rationale

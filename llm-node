@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# Read system prompt if file exists, default to empty string
+SYSTEM_PROMPT=""
+if [ -f /etc/llm/system_prompt.txt ]; then
+    SYSTEM_PROMPT=$(cat /etc/llm/system_prompt.txt)
+fi
+
+# Read raw incoming byte stream from stdin
+USER_INPUT=$(cat -)
+
+# Prevent execution if stdin is completely empty
+if [ -z "$USER_INPUT" ]; then
+    exit 0
+fi
+
+# Combine system prompt + user payload and stream token output
+# Replace 'qwen2.5:3b' with your target model choice
+stdbuf -oL -o0 ollama run qwen2.5:3b "$SYSTEM_PROMPT
+
+---
+User Input:
+$USER_INPUT"
