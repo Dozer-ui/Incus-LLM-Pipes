@@ -1,0 +1,42 @@
++------------------------------------------------------------------------------+
+|                            Adding an NVIDIA GPU                              |
++------------------------------------------------------------------------------+
+# As is the prompt chain will execute using the CPU. To add GPU acceleration a GPU device can be added to instances.
+For NVIDIA, some configurations need to be made in order for the instance to access all the same GPU capabilities that the host has.
+On a Fedora Atomic system, containers rely on a few packages to use NVIDIA hardware. 
+Besides the packages needed for the system to use NVIDIA, Incus container gpu passthrough requires nvidia-container-toolkit and xorg-x11-drv-nvidia-cuda.
+
+# To make a reusable configuration for GPU passthrough, create an Incus profile.
+
+incus profile create nvidia-gpu
+
+# Add the GPU device to the profile
+
+incus profile device add nvidia-gpu gpu gpu
+
+# Apply the NVIDIA container runtime configs to the profile
+
+incus profile set nvidia-gpu nvidia.runtime=true
+incus profile set nvidia-gpu nvidia.driver.capabilities=all
+incus profile set nvidia-gpu nvidia.require.cuda=true
+
+# Verify
+
+incus profile show nvidia-gpu
+
+# Incus profiles are created using yaml format. By using `profile set` Incus will populate the yaml file with the expected syntax.
+Alternatively use `incus profile edit <profile_name>` to directly edit the yaml file.
+
+# Add profile to node-formatter and node-executor
+incus profile add node-formatter nvidia-gpu
+incus profile add node-executor nvidia-gpu
+
+# Start containers to verify. If `nvidia-smi` command inside containers returns standard output, gpu passthrough is successful.
+
+incus start node-formatter node-executor
+incus exec node-formatter -- nvidia-smi
+incus exec node-executor -- nvidia-smi
+
++------------------------------------------------------------------------------+
+|                             Testing the Pipeline                             |
++------------------------------------------------------------------------------+

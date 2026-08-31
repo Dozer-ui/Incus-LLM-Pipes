@@ -99,3 +99,6 @@ incus publish llm-base --alias llm-node-base description="Debian 12 base image w
 --------------------------------------------------------------------------------
 # Clean up. Removes temporary build container.
 incus delete llm-base
+
+# Checklist:
+[x] Preconfigured Incus image for LLM prompt chaining.

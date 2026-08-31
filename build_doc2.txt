@@ -17,10 +17,11 @@ The qwen2.5:3b model in node-executor's llm-node file can comfortably be replace
 This model chain uses roughly 9 GB to run.
 
 # On host create new file llm-node-executor by copying llm-node
+
 cp llm-node llm-node-executor
 
 # Edit llm-node-executor and replace "qwen2.53b" with "qwen2.5:7b". Push file to node-executor. Leave file name as llm-node inside the container.
-# Make sure this command is run in the same directory as llm-node-executor file.
+
 incus file push llm-node-executor node-executor/usr/local/bin/llm-node
 
 # Now the wrapper script in node-formatter will call `ollama run qwen2.5:3b` and the script in node-executor will call `ollama run qwen2.5:7b`
@@ -70,6 +71,9 @@ incus exec node-executor -- ollama pull qwen2.5:7b
 
 # Other possible node-executor models.
 # qwen2.5:14b deepseek-coder-v2:16b (Lite) mistral:7b-instruct hermes3:8b
+
+# Stop containers
+incus stop node-executor node-formatter
 
 # Checklist:
 [x] Two running, isolated Incus instances (node-formatter and node-executor).
