@@ -2,20 +2,19 @@
 |                   Launch and Configure Base Build Container                  |
 +------------------------------------------------------------------------------+
 # Spin up a Debian 12 system container.
+
 incus launch images:debian/12 llm-base
 
---------------------------------------------------------------------------------
 # Enter the container environment.
+
 incus shell llm-base
 
---------------------------------------------------------------------------------
-# Update package index and install tools.
-# Necessary tools: curl, jq, stdbuf, cat
+# Update package index and install tools. Necessary tools: curl, jq, stdbuf, cat
+
 apt-get update && apt-get install -y curl jq coreutils zstd
 
---------------------------------------------------------------------------------
 # Install the Ollama inference engine.
-# Downloads and intalls Ollama binary and sets up system service files.
+
 curl -fsSL https://ollama.com/install.sh | sh
      '----'                              '---'
        |                                   |
@@ -33,16 +32,13 @@ curl -fsSL https://ollama.com/install.sh | sh
        + -S used with -s to show error only if connection fails completely
        + -L follows HTTP redirects if server forwards request to new URL
 
---------------------------------------------------------------------------------
-# Create configuration directory.
-# Establishes a standard filesystem path to hold node-specific system prompts.
-# Node specific system prompt will live here in system_prompt.txt
+# Create configuration directory. Establishes a standard filesystem path to hold node-specific system prompts.
+Node specific system prompt will live here in system_prompt.txt
+
 mkdir -p /etc/llm
 
---------------------------------------------------------------------------------
-# Create the stream wrapper on host. Captures upstream stdin, prepends the local
-# /etc/llm/system_prompt.txt, and uses stdbuf to force unbuffered token streaming
-# to stdout.
+# Create the stream wrapper on host. 
+Captures upstream stdin, prepends the local /etc/llm/system_prompt.txt, and uses stdbuf to force unbuffered token streaming to stdout.
 
 +------------------------------------------------------------------------------+
 |                                  llm-node                                    |
@@ -72,32 +68,29 @@ User Input:
 $USER_INPUT"
 +------------------------------------------------------------------------------+
 
---------------------------------------------------------------------------------
-# Create file above on host named llm-node.
-# In the directory of the file use Incus to push to container.
+# Create file above on host named llm-node. Use Incus to push to container.
+
 incus file push llm-node llm-base/usr/local/bin/llm-node
 
---------------------------------------------------------------------------------
 # Go back inside the container and make file executable.
+
 chmod +x /usr/local/bin/llm-node
 
---------------------------------------------------------------------------------
 # Exit container shell sesion.
+
 exit
 
---------------------------------------------------------------------------------
 # On host stop container.
+
 incus stop llm-base
 
---------------------------------------------------------------------------------
 # Publish container as local image template.
-# Converts configured container into Incus image alias. You can now use this 
-# image to spin up preconfigured llm-nodes for llm prompt chaining
-# infrastructure.
+Converts configured container into Incus image alias. You can now use this image to spin up preconfigured llm-nodes for llm prompt chaining infrastructure.
+
 incus publish llm-base --alias llm-node-base description="Debian 12 base image with Ollama and llm-node wrapper"
 
---------------------------------------------------------------------------------
 # Clean up. Removes temporary build container.
+
 incus delete llm-base
 
 # Checklist:

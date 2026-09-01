@@ -28,6 +28,7 @@ incus profile show nvidia-gpu
 Alternatively use `incus profile edit <profile_name>` to directly edit the yaml file.
 
 # Add profile to node-formatter and node-executor
+
 incus profile add node-formatter nvidia-gpu
 incus profile add node-executor nvidia-gpu
 
@@ -40,3 +41,69 @@ incus exec node-executor -- nvidia-smi
 +------------------------------------------------------------------------------+
 |                             Testing the Pipeline                             |
 +------------------------------------------------------------------------------+
+# Test node-formatter. Output should not answer the question but should rewrite the prompt per pre-coded instructions.
+
+echo "explain memory alignment" | incus exec node-formatter -- /usr/local/bin/llm-node
+
+# Test node-executor. Output should answer the question as usual.
+
+echo "explain memory alignment" | incus exec node-executor -- /usr/local/bin/llm-node
+
+# Run a control on node-executor for comparison to the chained output.
+
+echo "how do linux cgroups work" | incus exec node-executor -- /usr/local/bin/llm-node > control_output.txt
+
+# Run the same prompt used in the control through the full prompt chain and compare to control output.
+
+echo "how do linux cgroups work" | incus exec node-formatter -- /usr/local/bin/llm-node | incus exec node-executor -- /usr/local/bin/llm-node > pipeline_output.txt
+
+# pipeline_output.txt should be more detailed, structured and formatted than control_output.txt. 
+This is proof that node-formatter transformed the payload before node-executor processed it.
+
++------------------------------------------------------------------------------+
+|                       Create Host Orchestration Script                       |
++------------------------------------------------------------------------------+
+# Create chain.sh in host project directory. This script automates the creation of container chains.
+This script can be used to dynamically run pipelines of any length/combination from host CLI.
+
++------------------------------------------------------------------------------+
+|                                 chain.sh                                     |
++------------------------------------------------------------------------------+
+#!/usr/bin/env bash
+
+# Check if at least a prompt and one node were passed
+if [ "$#" -lt 2 ]; then
+    echo "Usage: $0 \"<prompt>\" <node1> [node2 ... nodeN]"
+    exit 1
+fi
+
+PROMPT="$1"
+shift
+NODES=("$@")
+
+# Construct the initial echo command
+CMD="echo \"$PROMPT\""
+
+# Loop through provided node containers and append pipeline executions
+for NODE in "${NODES[@]}"; do
+    CMD="$CMD | incus exec $NODE -- /usr/local/bin/llm-node"
+done
+
+# Execute the constructed pipeline string
+eval "$CMD"
++------------------------------------------------------------------------------+
+
+# Make chain.sh executable.
+
+chmod +x chain.sh
+
+# Test chain.sh.
+
+./chain.sh "explain memory alignment" node-formatter node-executor
+
+# Checklist:
+[x] Reusable GPU passthrough profile configured, applied and verified.
+[x] Single node streams verified.
+[x] Multi-node pipeline successfully executed over stdin/stdout kernel IPC.
+[x] Transformation proof confirmed via output comparison.
+[x] Reusable host orchestration script built and tested.

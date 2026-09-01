@@ -1,0 +1,6 @@
++------------------------------------------------------------------------------+
+|                                Failure Log                                   |
++------------------------------------------------------------------------------+
+- add gpu device with Incus (host vs container configs)
+- IDE/text editor quirks (LF and CLRF)
+- apt dependency failure (apt-get and ztsd)
