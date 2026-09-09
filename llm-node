@@ -3,7 +3,7 @@
 # Read system prompt if file exists, default to empty string
 SYSTEM_PROMPT=""
 if [ -f /etc/llm/system_prompt.txt ]; then
-    SYSTEM_PROMPT=$(cat /etc/llm/system_prompt.txt)
+  SYSTEM_PROMPT=$(cat /etc/llm/system_prompt.txt)
 fi
 
 # Read raw incoming byte stream from stdin
@@ -11,7 +11,7 @@ USER_INPUT=$(cat -)
 
 # Prevent execution if stdin is completely empty
 if [ -z "$USER_INPUT" ]; then
-    exit 0
+  exit 0
 fi
 
 # Combine system prompt + user payload and stream token output

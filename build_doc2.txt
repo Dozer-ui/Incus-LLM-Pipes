@@ -76,6 +76,6 @@ incus exec node-executor -- ollama pull qwen2.5:7b
 incus stop node-executor node-formatter
 
 # Checklist:
-[x] Two running, isolated Incus instances (node-formatter and node-executor).
-[x] Custom system prompt injection on each node without modifying code.
+[x] Two isolated Incus instances preconfigured for prompt chaining.
+[x] Custom system prompt injections on each node without modifying code.
 [x] Cached local model weights ready for instant execution.
